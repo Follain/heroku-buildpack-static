@@ -45,12 +45,18 @@ http {
     location / {
       mruby_post_read_handler /app/bin/config/lib/ngx_mruby/headers.rb cache;
       mruby_set $fallback /app/bin/config/lib/ngx_mruby/routes_fallback.rb cache;
-    <% if clean_urls %>
+    <% if prerender %>
+      try_files $uri @prerender;
+    <% elsif clean_urls %>
       try_files $uri $uri/ $uri.html $fallback;
     <% else %>
       try_files $uri $uri/ $fallback;
     <% end %>
     }
+
+  <% if prerender %>
+    include prerender.conf;
+  <% end %>
 
   <% if clean_urls %>
     location ~ \.html$ {
